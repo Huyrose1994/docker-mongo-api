@@ -1,0 +1,106 @@
+docker build -t node-app:1.0 .
+docker run -d -p 3000:3000 node-app:1.0
+docker logs (container_id)
+
+Dev/Ops Process:
+- Dockerhub
+- Developing an app
+- Git
+- Trigger CI/CD
+    - Builds Docker Image
+- Private Repository
+- Deployment Server
+    - Images are pulled on the server
+
+docker run package:version
+docker pull image_name
+docker start container_name
+docker stop container_name
+
+container port vs host port
+- Multiple containers can run on your host machine
+- Your laptop has only certain ports available
+- Conflict when same port on host machine
+- Port binding:
+    - some-app://localhost:port
+    - The host know how to forward the request to the container
+
+docker run -p host_port:container_port
+docker logs container_name
+docker run -d -p host_port:container_port --name container_name images:version
+docker exec -it container_id /bin/bash
+
+Docker network
+- Docker creates isolated docker network where the containers are running in
+- 2 containers in the same docker network can communicate by just using the container name
+- App outsides are going to connect to them using localhost:port_number
+
+docker network ls
+docker network create network_name
+docker run -p service_name 
+
+docker run -d \
+> -p 27017:27017 \
+> -e MONGO_INITDB_ROOT_USERNAME=admin \
+> -e MONGO_INITDB_ROOT_PASSWORD=password \
+> --name mongodb \
+> --net mongo-network \
+> mongo
+
+docker run -d \
+-p 8081:8081 \
+-e ME_CONFIG_MONGODB_ADMINUSERNAME=admin \
+-e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
+-e ME_CONFIG_MONGODB_SERVER=mongodb \
+--net mongo-network \
+--name mongo-express \
+mongo-express
+
+localhost:8081
+user: admin
+password: pass
+
+version: '3' #docker compose version
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+
+Deploy:
+    - Package into its own docker container
+    Jenkins:
+        - Package into a docker image
+        - Push it to docker repository
+    Dockerfile:
+        - Blue print for building a docker image
+
+3 Volume Types
+
+- Data persistence
+- Container - Restart - Data is gone
+- Docker Volume
+  - Plug physical file system to the virtual file system (Mount)
+
+3 types of volume:
+  - Docker run 
+    -v /home/mount/data:/var/lib/mysql/data
+      - Host volumes: When you decide where on the host file system 
+      the reference is made
+    -v /var/lib/msql/data
+      - Anonymous volumes: automatically created by docker
+    -v name:/var/lib/mysql/data
+      - Named volume: you can reference the volume by name
+    
